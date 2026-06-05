@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jdk
+FROM eclipse-temurin:17-jdk-jammy
 
 ARG CMDLINE_TOOLS_VERSION=14742923_latest
 ARG ANDROID_SDK_VERSION=36
