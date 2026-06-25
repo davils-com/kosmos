@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Integrated CMake for native C/C++ development with JNI support.
+- Added `libsecret` dependency to CMake installation.
 
 ### Changed
 - Moved `build-essential` to the base Docker image layer for improved consistency.
