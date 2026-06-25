@@ -5,11 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.4
+### Changed
+- Added `libsecret` dependency to CMake installation.
+
 ## 1.0.3
 
 ### Added
 - Integrated CMake for native C/C++ development with JNI support.
-- Added `libsecret` dependency to CMake installation.
 
 ### Changed
 - Moved `build-essential` to the base Docker image layer for improved consistency.
