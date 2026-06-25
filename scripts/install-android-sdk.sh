@@ -33,3 +33,6 @@ sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" \
   "platform-tools" \
   "platforms;android-${ANDROID_SDK_VERSION}" \
   "build-tools;${BUILD_TOOLS_VERSION}"
+
+# Clean up
+rm -rf "${ANDROID_SDK_ROOT}/.temp"

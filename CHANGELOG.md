@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.3
+
+### Added
+- Integrated CMake for native C/C++ development with JNI support.
+
+### Changed
+- Moved `build-essential` to the base Docker image layer for improved consistency.
+- Fixed a typo in the Dockerfile (corrected `RUn` to `RUN`).
+- Optimized Docker image size by consolidating layers and minimizing installation footprint.
+- Switched Rust installation to `minimal` profile to reduce size.
+- Integrated `chown` operations into the installation layer to prevent layer bloating.
+- Added cleanup of temporary files and caches in installation scripts.
+- Upgraded Gradle from 9.5.1 to 9.6.0.
+
 ## 1.0.2
 
 ### Added
