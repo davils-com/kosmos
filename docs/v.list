@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE vars SYSTEM "https://resources.jetbrains.com/writerside/1.0/vars.dtd">
+<vars>
+    <!-- Product identity -->
+    <var name="product" value="Kosmos"/>
+    <var name="version" value="1.1.0"/>
+    <var name="major_minor" value="1.1"/>
+
+    <!-- Image coordinates -->
+    <var name="registry" value="ghcr.io"/>
+    <var name="image" value="ghcr.io/davils-com/kosmos"/>
+
+    <!-- Bundled tool versions. Single source of truth for the numbers stated in the docs;
+         they mirror docker-bake.hcl and the install scripts. -->
+    <var name="jdk" value="17"/>
+    <var name="gradle_version" value="9.7.0"/>
+    <var name="android_sdk" value="36"/>
+    <var name="build_tools" value="36.1.0"/>
+    <var name="cmdline_tools" value="15859902_latest"/>
+
+    <!-- Links -->
+    <var name="repo" value="https://github.com/davils-com/kosmos"/>
+    <var name="issues" value="https://github.com/davils-com/kosmos/issues"/>
+</vars>

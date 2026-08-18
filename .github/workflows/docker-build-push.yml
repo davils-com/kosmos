@@ -4,53 +4,158 @@ on:
   push:
     tags:
       - '*'
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions: {}
+
 jobs:
-  build-and-push:
+  build:
+    name: ${{ matrix.variant }}
     runs-on: ubuntu-latest
+    timeout-minutes: 60
+
     permissions:
       contents: read
       packages: write
+      id-token: write
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [base, native, android, chrome, full]
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Resolve tags
+        id: meta
+        env:
+          VARIANT: ${{ matrix.variant }}
+        run: |
+          set -euo pipefail
+          ref="${GITHUB_REF_NAME}"
+          version="${ref#v}"                       # strip a leading v
+          majorminor="$(echo "$version" | cut -d. -f1-2)"
+          if [ "$VARIANT" = "full" ]; then prefix=""; else prefix="${VARIANT}-"; fi
+          image="${REGISTRY}/${IMAGE_NAME}"
+          {
+            echo "image=${image}"
+            echo "version=${version}"
+            echo "majorminor=${majorminor}"
+            echo "prefix=${prefix}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags & labels)
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=raw,value=latest
+      # Build the one variant, push it by digest (no tag yet), and attach SBOM + provenance.
+      - name: Build and push by digest
+        id: build
+        env:
+          VARIANT: ${{ matrix.variant }}
+          IMAGE: ${{ steps.meta.outputs.image }}
+        run: |
+          set -euo pipefail
+          docker buildx bake "$VARIANT" \
+            --set "*.output=type=image,name=${IMAGE},push-by-digest=true,name-canonical=true,push=true" \
+            --set "*.attest=type=provenance,mode=max" \
+            --set "*.attest=type=sbom" \
+            --set "*.cache-from=type=gha,scope=${VARIANT}" \
+            --set "*.cache-to=type=gha,mode=max,scope=${VARIANT}" \
+            --metadata-file metadata.json
+          digest="$(jq -r --arg v "$VARIANT" '.[$v]["containerimage.digest"]' metadata.json)"
+          test -n "$digest" && test "$digest" != "null"
+          echo "digest=${digest}" >> "$GITHUB_OUTPUT"
+          echo "ref=${IMAGE}@${digest}" >> "$GITHUB_OUTPUT"
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
+      - name: Trivy scan (SARIF)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        env:
+          TRIVY_USERNAME: ${{ github.actor }}
+          TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          build-args: |
-            CMDLINE_TOOLS_VERSION=14742923_latest
-            ANDROID_SDK_VERSION=36
-            BUILD_TOOLS_VERSION=35.0.1
-            GRADLE_VERSION=9.5.1
+          scan-type: image
+          image-ref: ${{ steps.build.outputs.ref }}
+          format: sarif
+          output: trivy-${{ matrix.variant }}.sarif
+          severity: CRITICAL,HIGH,MEDIUM
+          exit-code: '0'
+          ignore-unfixed: true
+
+      - name: Upload SARIF to code scanning
+        if: always()
+        uses: github/codeql-action/upload-sarif@c16c0f3f2812ec4bb3750a5ed64873fe2ce0fbef # codeql-bundle-v2.26.3
+        with:
+          sarif_file: trivy-${{ matrix.variant }}.sarif
+          category: trivy-${{ matrix.variant }}
+
+      - name: Trivy gate
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        env:
+          TRIVY_USERNAME: ${{ github.actor }}
+          TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          scan-type: image
+          image-ref: ${{ steps.build.outputs.ref }}
+          format: table
+          severity: CRITICAL,HIGH
+          exit-code: '1'
+          ignore-unfixed: true
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
+
+      - name: Sign the digest (keyless)
+        env:
+          REF: ${{ steps.build.outputs.ref }}
+        run: cosign sign --yes "$REF"
+
+      - name: Promote tags
+        env:
+          IMAGE: ${{ steps.meta.outputs.image }}
+          PREFIX: ${{ steps.meta.outputs.prefix }}
+          VERSION: ${{ steps.meta.outputs.version }}
+          MAJORMINOR: ${{ steps.meta.outputs.majorminor }}
+          REF: ${{ steps.build.outputs.ref }}
+        run: |
+          set -euo pipefail
+          docker buildx imagetools create \
+            --tag "${IMAGE}:${PREFIX}${VERSION}" \
+            --tag "${IMAGE}:${PREFIX}${MAJORMINOR}" \
+            --tag "${IMAGE}:${PREFIX}latest" \
+            "$REF"
+
+      - name: Generate CycloneDX SBOM
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        env:
+          TRIVY_USERNAME: ${{ github.actor }}
+          TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          scan-type: image
+          image-ref: ${{ steps.build.outputs.ref }}
+          format: cyclonedx
+          output: sbom-${{ matrix.variant }}.cdx.json
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: sbom-${{ matrix.variant }}
+          path: sbom-${{ matrix.variant }}.cdx.json
+          retention-days: 90

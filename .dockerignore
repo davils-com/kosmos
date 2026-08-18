@@ -1,0 +1,5 @@
+# Keep the build context to the Dockerfile + scripts only.
+*
+!Dockerfile
+!scripts/
+!scripts/**

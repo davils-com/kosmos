@@ -1,11 +1,19 @@
-#!/bin/bash
+#!/usr/bin/env bash
+#
+# Installs a fixed Gradle version into /opt/gradle. Runs in a throwaway builder stage; only
+# /opt/gradle is copied into the final image, so nothing else here affects image size.
+set -euo pipefail
 
-set -e
-
-GRADLE_VERSION="$1"
+GRADLE_VERSION="${1:?gradle version required}"
 
 echo "Installing Gradle ${GRADLE_VERSION} ..."
-wget -P /tmp "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip"
+tmp="$(mktemp -d)"
+trap 'rm -rf "${tmp}"' EXIT
+
+wget -q -O "${tmp}/gradle.zip" \
+  "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip"
+
 mkdir -p /opt/gradle
-unzip -q "/tmp/gradle-${GRADLE_VERSION}-bin.zip" -d /opt/gradle
-rm "/tmp/gradle-${GRADLE_VERSION}-bin.zip"
+unzip -q "${tmp}/gradle.zip" -d /opt/gradle
+
+echo "Gradle ${GRADLE_VERSION} installed to /opt/gradle."

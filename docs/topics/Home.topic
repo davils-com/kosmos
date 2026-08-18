@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic SYSTEM "https://resources.jetbrains.com/writerside/1.0/xhtml-entities.dtd">
+<topic xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="https://resources.jetbrains.com/writerside/1.0/topic.v2.xsd"
+       id="Home"
+       title="Kosmos">
+
+    <section-starting-page>
+        <title>Kosmos</title>
+        <description>
+            One Docker base image for Davils' Kotlin, Android and Rust CI — JDK, Gradle, native
+            toolchain, Android SDK and headless Chrome, split into variants so every pipeline
+            pulls only what it needs.
+        </description>
+
+        <spotlight>
+            <a href="Getting-Started.md"
+               type="start"
+               summary="Pull a variant, run a container, and build inside it.">
+                Getting started
+            </a>
+            <a href="Variants.md"
+               type="container"
+               summary="base, native, android, chrome and full — what each one contains and when to use it.">
+                Image variants
+            </a>
+        </spotlight>
+
+        <primary>
+            <title>Core topics</title>
+            <a href="Overview.md"
+               summary="What Kosmos is, the problems it removes, and how the variants are layered.">
+                Overview
+            </a>
+            <a href="Build-Configuration.md"
+               summary="Build targets locally with docker-bake.hcl, override tool versions with build-args.">
+                Build configuration
+            </a>
+            <a href="Security.md"
+               summary="Scan-then-promote publishing: Trivy gate, SBOM, SLSA provenance and cosign signatures.">
+                Security and provenance
+            </a>
+            <a href="CI-Integration.md"
+               summary="Use Kosmos as the image for GitHub Actions and GitLab CI jobs.">
+                CI integration
+            </a>
+        </primary>
+
+        <secondary>
+            <title>Reference</title>
+            <a href="Environment-Reference.md"
+               summary="Environment variables, paths, and the tool versions each variant ships.">
+                Environment reference
+            </a>
+            <a href="Maintenance.md"
+               summary="How updates, tagging and registry cleanup work, and what stays manual.">
+                Maintenance and updates
+            </a>
+        </secondary>
+
+        <misc>
+            <links narrow="true">
+                <group>
+                    <title>Project</title>
+                    <a href="%repo%" summary="The Kosmos repository on GitHub.">Source code</a>
+                    <a href="%issues%" summary="Report a bug or request a feature.">Issue tracker</a>
+                    <a href="%repo%/blob/main/CHANGELOG.md" summary="What changed in each release.">Changelog</a>
+                    <a href="%repo%/pkgs/container/kosmos" summary="The published container package on GHCR.">Container registry</a>
+                </group>
+                <group>
+                    <title>Get involved</title>
+                    <a href="%repo%/blob/main/CODE_OF_CONDUCT.md" summary="The standards expected of participants.">Code of conduct</a>
+                    <a href="https://discord.com/invite/W25gFXDVFb" summary="Ask a question and talk to the maintainers.">Discord</a>
+                    <a href="https://www.davils.com" summary="Davils on the web.">Davils</a>
+                </group>
+            </links>
+        </misc>
+    </section-starting-page>
+
+</topic>

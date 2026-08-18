@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE instance-profile
+        SYSTEM "https://resources.jetbrains.com/writerside/1.0/product-profile.dtd">
+
+<instance-profile id="k"
+                  name="Kosmos"
+                  start-page="Home.topic">
+
+    <toc-element topic="Home.topic"/>
+    <toc-element topic="Overview.md"/>
+    <toc-element topic="Getting-Started.md"/>
+    <toc-element topic="Variants.md"/>
+
+    <toc-element toc-title="Reference">
+        <toc-element topic="Build-Configuration.md"/>
+        <toc-element topic="Environment-Reference.md"/>
+    </toc-element>
+
+    <toc-element toc-title="Security &amp; compliance">
+        <toc-element topic="Security.md"/>
+    </toc-element>
+
+    <toc-element toc-title="Operations">
+        <toc-element topic="CI-Integration.md"/>
+        <toc-element topic="Maintenance.md"/>
+    </toc-element>
+
+</instance-profile>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE categories
+        SYSTEM "https://resources.jetbrains.com/writerside/1.0/categories.dtd">
+<categories>
+    <category id="start" name="Getting oriented" order="1"/>
+    <category id="reference" name="Reference" order="2"/>
+    <category id="security" name="Security &amp; compliance" order="3"/>
+    <category id="operations" name="Operations" order="4"/>
+    <category id="external" name="External documentation" order="5"/>
+</categories>

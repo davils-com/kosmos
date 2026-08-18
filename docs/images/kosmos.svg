@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="Kosmos">
+    <circle cx="24" cy="24" r="8" fill="#FF8D09"/>
+    <ellipse cx="24" cy="24" rx="20" ry="8" fill="none" stroke="#FF8D09" stroke-width="2"
+             transform="rotate(-30 24 24)"/>
+    <circle cx="42" cy="14" r="2.5" fill="#FF8D09"/>
+</svg>

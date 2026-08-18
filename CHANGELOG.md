@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.1.0
+
+### Added
+- **Multi-variant image**: build targets `base`, `native`, `android`, `chrome` and `full`, so a
+  consumer pulls only the toolchain it needs. Plain tags (`:<ver>`, `:latest`) still point at
+  `full` for backward compatibility; variants publish as `:<variant>-<ver>` / `-<major.minor>` /
+  `-latest`. Defined in `docker-bake.hcl`.
+- **Native toolchain** in `native`/`full`: CMake, `pkg-config`, `libsecret-1-dev`,
+  `build-essential` (for JNI / C-interop, e.g. Kreate).
+- **Supply-chain hardening** in CI: scan-then-promote flow — build by digest, Trivy vulnerability
+  gate (SARIF to code scanning), CycloneDX SBOM + SLSA provenance attestations, keyless cosign
+  signing, then tag promotion.
+- **Automation**: Dependabot (base-image digest + Actions), weekly GHCR cleanup of untagged
+  manifests, `.dockerignore`.
+- **Documentation**: Writerside doc set under `docs/`, published to GitHub Pages via
+  `.github/workflows/writerside.yml`.
+
+### Changed
+- **Tool versions bumped to latest**: Gradle `9.5.1` → `9.7.0`, Android build-tools `35.0.1` →
+  `36.1.0`, command-line tools → `15859902`. JDK stays 17 (LTS target) and Android platform 36.
+- **Multi-stage build**: tools are downloaded/extracted in throwaway builder stages and only the
+  finished artifacts are copied into the final layers — zips, apt lists and SDK caches no longer
+  ship. Base image pinned by digest.
+- `rustup` installed with the `minimal` profile; docs stripped.
+- All GitHub Actions pinned by commit SHA; CI builds `linux/amd64`.
+
+### Fixed
+- `RUn` typo in the Dockerfile.
+
 ## 1.0.2
 
 ### Added
