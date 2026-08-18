@@ -74,6 +74,7 @@ jobs:
         run: |
           set -euo pipefail
           docker buildx bake "$VARIANT" \
+            --set "*.tags=" \
             --set "*.output=type=image,name=${IMAGE},push-by-digest=true,name-canonical=true,push=true" \
             --set "*.attest=type=provenance,mode=max" \
             --set "*.attest=type=sbom" \
