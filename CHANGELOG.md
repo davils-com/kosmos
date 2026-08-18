@@ -14,9 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `-latest`. Defined in `docker-bake.hcl`.
 - **Native toolchain** in `native`/`full`: CMake, `pkg-config`, `libsecret-1-dev`,
   `build-essential` (for JNI / C-interop, e.g. Kreate).
-- **Supply-chain hardening** in CI: scan-then-promote flow — build by digest, Trivy vulnerability
-  gate (SARIF to code scanning), CycloneDX SBOM + SLSA provenance attestations, keyless cosign
-  signing, then tag promotion.
+- **Supply-chain hardening** in CI: scan-then-promote flow — every variant is built by digest and
+  Trivy-gated (SARIF to code scanning) in one phase, and tag promotion + keyless cosign signing run
+  in a separate phase that only starts once all variants pass, so a single failed build publishes
+  nothing. Includes CycloneDX SBOM + SLSA provenance attestations.
 - **Automation**: Dependabot (base-image digest + Actions), weekly GHCR cleanup of untagged
   manifests, `.dockerignore`.
 - **Documentation**: Writerside doc set under `docs/`, published to GitHub Pages via
